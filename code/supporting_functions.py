@@ -85,7 +85,6 @@ def create_output_images(Rover):
                   # consider it a success and plot the location of the known
                   # sample on the map
                   if np.min(rock_sample_dists) < 3:
-                        print("detection is real")
                         Rover.rock_map[test_rock_y-rock_size:test_rock_y+rock_size,
                                        test_rock_x-rock_size:test_rock_x+rock_size] = 1
 
