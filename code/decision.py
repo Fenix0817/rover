@@ -4,18 +4,17 @@ def forward_mode(Rover, steer_val):
 
 
   if Rover.ground_pixels_count >= Rover.is_blocked_thresh:
-    # There is sufficient clear path ahead
-    # Keep accelerating forward unless we have reached maximum speed
+    print("Sufficient clear path ahead.")
 
     Rover.brake, Rover.steer = 0, steer_val
     Rover.throttle = Rover.throttle_val if Rover.vel < Rover.max_vel else 0
 
     if Rover.found_rock:
-      print("move slowly")
+      print("Rock Found: Move slowly.")
       Rover.throttle = 0.1
 
   else:
-    # The path is blocked
+    print("Path is blocked.")
     Rover.throttle, Rover.steer, Rover.brake, Rover.mode = 0, 0, Rover.brake_val, 'stop'
 
   return Rover
@@ -24,16 +23,17 @@ def forward_mode(Rover, steer_val):
 def stop_mode(Rover, steer_val):
 
   if Rover.vel > 0.2 or Rover.near_sample == 1:
-    # We're near a sample or we're in stop mode but still moving: keep braking
+    print("Keep braking.")
     Rover.throttle, Rover.steer, Rover.brake = 0, 0, Rover.brake_val
 
-  else: # We have completely stopped
+  else:
+    print("Completely stopped.")
 
     if Rover.ground_pixels_count < Rover.is_cleared_path_thresh:
-      # The path isn't sufficiently clear so keep turning
+      print("Path isn't sufficiently clear so keep turning.")
       Rover.throttle, Rover.brake, Rover.steer = 0, 0, -15
     else:
-      # The path is clear
+      print("Path is clear.")
       Rover.throttle, Rover.steer, Rover.brake, Rover.mode = Rover.throttle_val, steer_val, 0, 'forward'
 
   return Rover
@@ -49,7 +49,7 @@ def update_recorded_movement(Rover):
     Rover.sufficient_movement = cond1 or cond2 or cond3
 
   if Rover.sufficient_movement:
-    print("We've moved: update recorded positions")
+    print("We've moved: Update recorded positions")
     Rover.recorded_pos = (Rover.pos[0], Rover.pos[1], Rover.yaw, Rover.total_time)
     Rover.sufficient_movement = False
 
@@ -79,7 +79,7 @@ def decision_step(Rover):
 
   # Check if we're stuck or near a sample
   if check_if_stuck(Rover):
-    print("Stuck again")
+    print("Stuck again!")
     Rover.mode = 'stuck'
 
   if Rover.near_sample == 1:
@@ -91,13 +91,13 @@ def decision_step(Rover):
   elif Rover.mode == 'stop':
     Rover = stop_mode(Rover, steer_val)
   elif Rover.mode == 'stuck':
-    Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, 0, -15, 'forward'
+    Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, 0, steer_val, 'forward'
 
   # Let's pick up a rock if we've stopped moving near a sample
   if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
     Rover.send_pickup = True
     print("Picking up sample")
 
-  print(Rover.mode)
+  print("MODE:", Rover.mode)
 
   return Rover
