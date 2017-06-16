@@ -31,7 +31,9 @@ def stop_mode(Rover, steer_val):
 
     if Rover.ground_pixels_count < Rover.is_cleared_path_thresh:
       print("Path isn't sufficiently clear so keep turning.")
-      Rover.throttle, Rover.brake, Rover.steer = 0, 0, -15
+      steer = -15
+      #steer = steer_val
+      Rover.throttle, Rover.brake, Rover.steer = 0, 0, steer
     else:
       print("Path is clear.")
       Rover.throttle, Rover.steer, Rover.brake, Rover.mode = Rover.throttle_val, steer_val, 0, 'forward'
@@ -59,7 +61,7 @@ def update_recorded_movement(Rover):
 def check_if_stuck(Rover):
 
   stuck_cond1 =  Rover.vel == 0 and np.absolute(Rover.throttle) > 0
-  stuck_cond2 = Rover.total_time - Rover.recorded_pos[3] > 5 and not Rover.sufficient_movement
+  stuck_cond2 = Rover.total_time - Rover.recorded_pos[3] > 2 and not Rover.sufficient_movement
   is_stuck = (stuck_cond1 or stuck_cond2) and not Rover.near_sample
   return is_stuck
 
@@ -91,7 +93,9 @@ def decision_step(Rover):
   elif Rover.mode == 'stop':
     Rover = stop_mode(Rover, steer_val)
   elif Rover.mode == 'stuck':
-    Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, 0, steer_val, 'forward'
+    steer = -15
+    #steer = steer_val
+    Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, 0, steer, 'forward'
 
   # Let's pick up a rock if we've stopped moving near a sample
   if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
