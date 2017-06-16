@@ -13,8 +13,8 @@
 
 # Summary
 - I have used image processing and computer vision techniques to do the following:
-- - identify rock samples, obstacles and navigable terrain.
-- - map more than 40% of the environment with atleast 60% fidelity to the ground truth
+- - Identify rock samples, obstacles and navigable terrain.
+- - Map more than 40% of the environment with atleast 60% fidelity to the ground truth
 - I have used the results of the computer vision techniques make inferences about the environment.
 - - These inferences help me decide what actions the rover should to navigate the environment autonomously and pick up desired samples.
 - - The rover has picked up 4 - 6 samples given my decision pipeline at most times I run this at the simulator
