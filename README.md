@@ -12,7 +12,8 @@
 
 # Videos
 - https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
--  
+- https://github.com/mithi/rover/blob/master/output/videoA.mp4
+- https://github.com/mithi/rover/blob/master/output/videoB.mp4
 
 
 # Dependencies
