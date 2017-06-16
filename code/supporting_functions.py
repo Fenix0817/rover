@@ -76,7 +76,9 @@ def create_output_images(Rover):
       # to confirm whether detections are real
       if Rover.near_sample:
             rock_size = 4
+            print("Near sample.")
             for idx in range(len(Rover.samples_pos[0])):
+                  print("Checking validity.")
                   test_rock_x = Rover.samples_pos[0][idx]
                   test_rock_y = Rover.samples_pos[1][idx]
                   rock_sample_dists = np.sqrt((test_rock_x - Rover.pos[0])**2 + \
@@ -85,6 +87,7 @@ def create_output_images(Rover):
                   # consider it a success and plot the location of the known
                   # sample on the map
                   if np.min(rock_sample_dists) < 3:
+                        print("Draw rock on map")
                         Rover.rock_map[test_rock_y-rock_size:test_rock_y+rock_size,
                                        test_rock_x-rock_size:test_rock_x+rock_size] = 1
 
