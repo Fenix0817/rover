@@ -39,28 +39,61 @@ def stop_mode(Rover, steer_val):
   return Rover
 
 
+def update_recorded_movement(Rover):
+  # Check if we've sufficiently moved, if we did, updated latest recorded position
+
+  if Rover.pos[0] and Rover.pos[1] and Rover.yaw:
+    cond1 = np.absolute(Rover.recorded_pos[0] - Rover.pos[0]) > 2
+    cond2 = np.absolute(Rover.recorded_pos[1] - Rover.pos[1]) > 2
+    cond3 = np.absolute(Rover.recorded_pos[2] - Rover.yaw) % 360 > 2
+    Rover.sufficient_movement = cond1 or cond2 or cond3
+
+  if Rover.sufficient_movement:
+    print("We've moved: update recorded positions")
+    Rover.recorded_pos = (Rover.pos[0], Rover.pos[1], Rover.yaw, Rover.total_time)
+    Rover.sufficient_movement = False
+
+  return Rover
+
+
+def check_if_stuck(Rover):
+
+  stuck_cond1 =  Rover.vel == 0 and np.absolute(Rover.throttle) > 0
+  stuck_cond2 = Rover.total_time - Rover.recorded_pos[3] > 5 and not Rover.sufficient_movement
+  is_stuck = (stuck_cond1 or stuck_cond2) and not Rover.near_sample
+  return is_stuck
+
+
 # This is where you can build a decision tree for determining throttle, brake and steer
 # commands based on the output of the perception_step() function
 def decision_step(Rover):
 
+  if Rover.nav_angles is None:
+    print("Starting...")
+    return Rover
+
   steer_val = np.clip(Rover.angle, -15, 15)
+
+  # If we've sufficiently moved, if we did, updated latest recorded position
+  Rover = update_recorded_movement(Rover)
+
+  # Check if we're stuck or near a sample
+  if check_if_stuck(Rover):
+    print("Stuck again")
+    Rover.mode = 'stuck'
 
   if Rover.near_sample == 1:
     Rover.mode = 'stop'
 
-  if Rover.vel == 0 and np.absolute(Rover.throttle) > 0:
-    Rover.mode = 'stuck'
+  # Do next course of action
+  if Rover.mode == 'forward':
+    Rover = forward_mode(Rover, steer_val)
+  elif Rover.mode == 'stop':
+    Rover = stop_mode(Rover, steer_val)
+  elif Rover.mode == 'stuck':
+    Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, 0, -15, 'forward'
 
-  if Rover.nav_angles is not None:
-    # We have vision data to make decisions with
-    if Rover.mode == 'forward':
-      Rover = forward_mode(Rover, steer_val)
-    elif Rover.mode == 'stop':
-      Rover = stop_mode(Rover, steer_val)
-    elif Rover.mode == 'stuck':
-      Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, -0.2, -15, 'forward'
-
-  # We want to pickup a rock
+  # Let's pick up a rock if we've stopped moving near a sample
   if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
     Rover.send_pickup = True
     print("Picking up sample")
