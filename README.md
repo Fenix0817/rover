@@ -10,7 +10,7 @@ This project is modeled after
 Fulfillment of this project gives first hand experience on the three essential elements of robotics, which are perception, decision making and actuation. The project is carried out in a simulator environment built with the Unity game engine.
 
 For more information about this project, please see
-(the starter code as provided by Udacity)[https://github.com/udacity/RoboND-Rover-Project]
+[the starter code as provided by Udacity](https://github.com/udacity/RoboND-Rover-Project)
 
 ---
 # Writeup
@@ -31,8 +31,11 @@ For more information about this project, please see
 - https://github.com/ryan-keenan/RoboND-Python-Starterkit/blob/master/doc/configure_via_anaconda.md
 
 ### Simulator
-- Download depending on your OS: [Linux](https://s3-us-west-1.amazonaws.com/udacity-robotics/Rover+Unity+Sims/Linux_Roversim.zip), [Mac](  https://s3-us-west-1.amazonaws.com/udacity-robotics/Rover+Unity+Sims/Mac_Roversim.zip), or [Windows](https://s3-us-west-1.amazonaws.com/udacity-robotics/Rover+Unity+Sims/Windows_Roversim.zip).
-- I tested mine in macOS Sierra 10.12.5 MacBook Pro (Retina, 13-inch, Mid 2014)
+- Download depending on your OS:
+- - [Linux](https://s3-us-west-1.amazonaws.com/udacity-robotics/Rover+Unity+Sims/Linux_Roversim.zip)
+- - [Mac](https://s3-us-west-1.amazonaws.com/udacity-robotics/Rover+Unity+Sims/Mac_Roversim.zip)
+- - [Windows](https://s3-us-west-1.amazonaws.com/udacity-robotics/Rover+Unity+Sims/Windows_Roversim.zip)
+- - I tested mine in macOS Sierra 10.12.5 MacBook Pro (Retina, 13-inch, Mid 2014)
 
 ---
 # Data Analysis
