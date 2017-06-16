@@ -68,7 +68,7 @@ def create_output_images(Rover):
       plotmap[:, :, 0] = Rover.worldmap[:, :, 0]
 
       # Overlay obstacle and navigable terrain map with ground truth map
-      map_add = cv2.addWeighted(plotmap, 0.7, Rover.ground_truth, 0.15, 0)
+      map_add = cv2.addWeighted(plotmap, 0.7, Rover.ground_truth, 0.1, 0)
 
       # Check whether any rock detections are present in worldmap
       rock_world_pos = Rover.worldmap[:,:,1].nonzero()
