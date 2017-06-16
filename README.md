@@ -8,20 +8,18 @@
 [the starter code as provided by Udacity](https://github.com/udacity/RoboND-Rover-Project)
 
 
-# Writeup
-- `WRITEUP.MD`
-
+# [WRITEUP](https://github.com/mithi/rover/blob/master/WRITEUP.md)
 
 # Videos
--
+- https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
 -  
 
 
 # Dependencies
 
 ### Python 3, Jupyter Notebooks and Anaconda
-- https://github.com/ryan-keenan/RoboND-Python-Starterkit
-- https://github.com/ryan-keenan/RoboND-Python-Starterkit/blob/master/doc/configure_via_anaconda.md
+- [RoboND Python Starter Kit](https://github.com/ryan-keenan/RoboND-Python-Starterkit)
+- [Walkthrough: How to configure all dependencies via Anaconda](https://github.com/ryan-keenan/RoboND-Python-Starterkit/blob/master/doc/configure_via_anaconda.md)
 
 ### Simulator
 - Download depending on your OS:
