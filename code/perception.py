@@ -105,6 +105,12 @@ def perception_step(Rover):
   yaw = Rover.yaw
   img = Rover.img
 
+  DISPLAY_MODE = 1
+  # DISPLAY_MODE
+  # 1 - Display Transformed Camera View
+  # 2 - Display Camera View
+  # 3 - Display Rover coordinates View
+
   # Set up world_size and scale which is the rover pixels / world pixels ratio
   world_size = 200
   scale = 30
@@ -199,43 +205,44 @@ def perception_step(Rover):
     temp_d, temp_angle = 0, 0
 
   if len(rover_rock_xs) > 3: # Found rock
-    print("sees rock")
+    print("Sees rock")
     # Override angle
     Rover.found_rock = True
     temp_ds, temp_angles = convert_to_polar(rover_rock_xs, rover_rock_ys)
     temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
   else:
     Rover.found_rock = False
-    print("sees nothing")
 
   Rover.nav_dists, Rover.nav_angles = temp_ds, temp_angles
   Rover.angle = temp_angle * 180 / np.pi
 
 
   #############################################################################
-  # These are for displaying the rover coordinates, comment out if unused
+  # These are for displaying the rover coordinates
   #############################################################################
 
-  temp_xs = np.clip((rover_ground_xs / 2).astype(int), 0, 319)
-  temp_ys = np.clip(((rover_ground_ys + 160) / 2).astype(int), 0, 159)
+  if DISPLAY_MODE == 3:
 
-  temp_rock_xs = np.clip((rover_rock_xs / 2).astype(int), 0, 319)
-  temp_rock_ys = np.clip(((rover_rock_ys + 160) / 2).astype(int), 0, 159)
+    temp_xs = np.clip((rover_ground_xs / 2).astype(int), 0, 319)
+    temp_ys = np.clip(((rover_ground_ys + 160) / 2).astype(int), 0, 159)
 
-  if Rover.found_rock:
-    temp_ds, temp_angles = convert_to_polar(temp_rock_xs, temp_rock_ys)
-    temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
-  else:
-    temp_ds, temp_angles = convert_to_polar(temp_xs, temp_ys)
-    temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
+    temp_rock_xs = np.clip((rover_rock_xs / 2).astype(int), 0, 319)
+    temp_rock_ys = np.clip(((rover_rock_ys + 160) / 2).astype(int), 0, 159)
 
-  if np.isnan(temp_angle) or np.isnan(temp_d):
-    mean_x, mean_y = 0, 0
-  else:
-    mean_x, mean_y = int(temp_d * np.cos(temp_angle)), int(temp_d * np.sin(temp_angle))
+    if Rover.found_rock:
+      temp_ds, temp_angles = convert_to_polar(temp_rock_xs, temp_rock_ys)
+      temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
+    else:
+      temp_ds, temp_angles = convert_to_polar(temp_xs, temp_ys)
+      temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
+
+    if np.isnan(temp_angle) or np.isnan(temp_d):
+      mean_x, mean_y = 0, 0
+    else:
+      mean_x, mean_y = int(temp_d * np.cos(temp_angle)), int(temp_d * np.sin(temp_angle))
 
   #############################################################################
-  # Get the mean location of navigable terrain, comment out if unused
+  # Get the mean location of navigable terrain
   #############################################################################
 
   if Rover.found_rock:
@@ -257,20 +264,21 @@ def perception_step(Rover):
 
   # Navigable terrain is blue, rock is green, obstacles is red
 
-  # Uncomment the next three lines to display camera view
-  #Rover.vision_image[cam_ground_ys, cam_ground_xs, 0] = 255
-  #Rover.vision_image[cam_rock_ys, cam_rock_xs, 1] = 255
-  #Rover.vision_image[cam_blocked_ys, cam_blocked_xs, 2] = 255
-
-  # Uncomment the next four lines to display transformed camera view
-  Rover.vision_image[warped_ground_ys, warped_ground_xs, 0] = 255
-  Rover.vision_image[warped_rock_ys, warped_rock_xs, 1] = 255
-  Rover.vision_image[warped_blocked_ys, warped_blocked_xs, 2] = 255
-  cv2.line(Rover.vision_image, (160, 160),(warped_mean_x, warped_mean_y), [0, 255, 0], 2)
-
-  # Uncomment the next three lines to display in rover coordinates
-  #Rover.vision_image[temp_ys, temp_xs, 0] = 255
-  #Rover.vision_image[temp_rock_ys, temp_rock_xs, 1] = 255
-  #cv2.line(Rover.vision_image, (0, 80),(mean_x, mean_y), [0, 255, 0], 2)
+  if DISPLAY_MODE == 1:
+    # Display Transformed Camera View
+    Rover.vision_image[warped_ground_ys, warped_ground_xs, 0] = 255
+    Rover.vision_image[warped_rock_ys, warped_rock_xs, 1] = 255
+    Rover.vision_image[warped_blocked_ys, warped_blocked_xs, 2] = 255
+    cv2.line(Rover.vision_image, (160, 160),(warped_mean_x, warped_mean_y), [0, 255, 0], 2)
+  elif DISPLAY_MODE == 2:
+    # Display Camera View
+    Rover.vision_image[cam_ground_ys, cam_ground_xs, 0] = 255
+    Rover.vision_image[cam_rock_ys, cam_rock_xs, 1] = 255
+    Rover.vision_image[cam_blocked_ys, cam_blocked_xs, 2] = 255
+  elif DISPLAY_MODE == 3:
+    # Display Rover coordinates View
+    Rover.vision_image[temp_ys, temp_xs, 0] = 255
+    Rover.vision_image[temp_rock_ys, temp_rock_xs, 1] = 255
+    cv2.line(Rover.vision_image, (0, 80),(mean_x, mean_y), [0, 255, 0], 2)
 
   return Rover
