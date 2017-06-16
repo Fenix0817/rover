@@ -100,7 +100,7 @@ blocked_thresh_max = (255, 100, 255)
 ![image](output/cam_to_rover.png)
 
 
-### 3. Update Rover properties, World Map, and Rover Vision image
+### 3. Update Rover Properties, World Map, and Rover Vision Image
 - The `warped pixels` locations are displayed as the robot's vision image, giving `rock`, `ground`, and `blocked` pixels their own respective unique identifying color.
 - The `world pixels` locations are added to the image map, giving `rock`, `ground`, and `blocked` pixels their own respective unique identifying color.
 - The `mean pixel` location of the `ground` or `rock` if it exist is used to draw a line from from the bottom center to give us a visual idea of the direction the rover should possibly be steering towards.
