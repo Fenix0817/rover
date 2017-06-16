@@ -14,7 +14,12 @@
 - https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
 - https://github.com/mithi/rover/blob/master/output/videoA.mp4
 - https://github.com/mithi/rover/blob/master/output/videoB.mp4
-
+- The videos were recorded in real-time and was sped up with `ffmpeg`
+```
+$ brew install ffmpeg
+$ ffmpeg -i video.mov -r 24 -filter:v "setpts=0.25*PTS" -an output.mov
+$ ffmpeg -i output.mov -vcodec copy -acodec copy output.mp4
+```
 
 # Dependencies
 
