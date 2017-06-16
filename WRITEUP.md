@@ -67,8 +67,6 @@ blocked_thresh_max = (255, 100, 255)
 
 ![image](output/rover_to_map.png)
 
-![image](output/thresh_to_map.png)
-
 # Autonomous Navigation and Mapping
 
 ## Perception
