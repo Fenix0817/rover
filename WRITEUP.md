@@ -16,14 +16,17 @@
 - - These inferences help me decide what actions the rover should to navigate the environment autonomously and pick up desired samples.
 - - The rover has picked up 4 - 6 samples given my decision pipeline at most times I run this at the simulator
 
-
 > I chose an 840 x 520 resolution with the graphic quality of 'good' for autonomous navigation
+
+![settings](output/settings.png)
+
 
 # Data Analysis
 - The notebook can be found in the following link:
 - - https://github.com/mithi/rover/blob/master/code/rover_playround.ipynb
 - The output video of this notebook can be found here:
-- https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
+- - https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
+
 ## Obstacle, Navigable Terrain, and Rock Sample Identification
 - Given a camera image from the rover, obstacles (`blocked`), samples (`rock`), and navigable terrain (`ground`) are identified via their color.
 - I converted the image in BGR format to HLS format as yellows are easier to distinguish using this format.
@@ -48,15 +51,23 @@ blocked_thresh_max = (255, 100, 255)
 - I defined a function `filter_hls(img)` which can be found in `code cell #16`
 - This is  a color thresholding function which identify pixels above and below given thresholds
 
+![image](output/color_thresholdA.png)
+
 
 ## World Map Creation
+
 - Algorithmically, to do this I did the following steps for world map creation:
-- - 0. Started a a map which is a blank image.
+- Initally: I started a a map which is a blank image.
+- Repeatedly: Each time there is an incoming image:
 - - 1. Use the color thresholding function `filter_hls()` to identify the `rock`, `ground`, and `blocked` pixels
 - - 2. Transform the perspective (using `transform_perspective()`) of these pixels from _camera view_ to _sky view_ using _Open CV's_ builtin `cv2.getPerspectiveTransform(src_points, dst_points)` and  `cv2.warpPerspective(img, transform_matrix, dimensions)` functions. `src_points` and `dst_points` are derived from the given calibration images located in the `calibration_images` folder.
 - - 3. Convert these transformed (_warped_) pixel locations to rover coordinates using `get_rover_coordinates()` function
 - - 4. Convert these pixel locations to coordinates in the `world_map` by rotating, scaling, and translating. The `convert_rover_to_world_coordinates()` is used
 - - 5. Add these pixel location in `world coordinates` to the image map, giving `rock`, `ground`, and `blocked` pixels their own respective unique identifying color.
+
+![image](output/rover_to_map.png)
+
+![image](output/thresh_to_map.png)
 
 # Autonomous Navigation and Mapping
 
@@ -66,6 +77,9 @@ blocked_thresh_max = (255, 100, 255)
 
 ### 1.Identify pixel locations of each _object of interest_ in the Camera
 - I got the `cam_pixels` pixels that identifying the `rock` samples, the `ground` navigable terrain, and the `blocked` obstacles using color thresholding
+
+![image](output/color_thresholdB.png)
+
 
 ### 2. Derive perceived properties given pixel locations of each _object of interest_
 - This includes the following:
@@ -77,6 +91,9 @@ blocked_thresh_max = (255, 100, 255)
 - The `world pixels` transformed from the `rover pixels` in rover coordinate space to world map coordinate space
 - The `size` which is the total number of pixels for each _object of interest_
 
+![image](output/cam_to_rover.png)
+
+
 ### 3. Update Rover properties, World Map, and Rover Vision image
 - The `warped pixels` locations are displayed as the robot's vision image, giving `rock`, `ground`, and `blocked` pixels their own respective unique identifying color.
 - The `world pixels` locations are added to the image map, giving `rock`, `ground`, and `blocked` pixels their own respective unique identifying color.
@@ -85,13 +102,14 @@ blocked_thresh_max = (255, 100, 255)
 - Update `Rover.angle` and `Rover.found_rock` to `True`, appropriately as mentioned above
 - Update `Rover.ground_pixel_count` given the `size` of `ground`
 
+![image](output/thresh_to_map.png)
 
 
 ## Decision making
 - https://github.com/mithi/rover/blob/master/code/decision.py
 - Given the updated results of `perception_step()` function the `decision_step()` function is roughly like this:
 
-### 1. Updated last recorded position
+### 1. Update last recorded position
 - We are given the current x, y position, and heading of the rover, if this is significantly different from the last recorded position we can say that we've sufficiently moved.
 - If we did, let's update the last recorded position, and note that there is sufficient movement
 
@@ -100,21 +118,21 @@ blocked_thresh_max = (255, 100, 255)
 - If we're not near a sample and our velocity is zero even though we are throttling, then this means we are `stuck`
 - If we're not near a sample and there is no sufficient movement even though a significant time has passed, then we can safely say we are stuck.
 
-### 3A. If we are in `forward` mode, move appropriately
+### 3A. If we are in `forward` mode, command appropriately
 - Check if the path is sufficiently clear given the `Rover.ground_pixels_count` and a threshold `Rover.is_blocked_thresh`
 - If the path is clear, we should move forward given the suggested steering angle. We should accelerate if we haven't reached our allowed velocity.
 - If the path is clear and we have found the rock, we should move slowly by keeping our acceleration to a minimum.
 - If the path is blocked let's brake and and switch to `stop mode`
 
-### 3B. If we are in `stop` mode, move appropriately
-- If we're not yet completely stopped keep braking.
+### 3B. If we are in `stop` mode, command appropriately
+- If we're not yet completely stopped, keep braking.
 - If we've completely stopped, check if path is sufficiently clear, given
 the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
 - If path is sufficiently clear, turn in place, else switch to `forward mode`
 
-## 3C. If we're `stuck` let's turn in place
+### 3C. If we're `stuck`, let's turn in place
 
-## 4. Pick up the sample if we could and haven't yet
+### 4. Pick up the sample if we could and haven't yet
 - If we're not moving and we're near a sample and let's pick it up
 
 # Known Issues and Recommendations For Improvement
@@ -129,7 +147,7 @@ the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
 # Summary
 - I have used image processing and computer vision techniques to do the following:
 - - identify rock samples, obstacles and navigable terrain.
-- - map more than 40% of the environment with atleast 60% fidelity to the ground truth
+- - map more than 40% of the environment with at least 60% fidelity to the ground truth
 - I have used the results of the computer vision techniques make inferences about the environment.
 - - These inferences help me decide what actions the rover should to navigate the environment autonomously and pick up desired samples.
-- - The rover has picked up 4 - 6 samples given my decision pipeline at most times I run this at the simulator
+- - The rover has typically picked up 4 - 6 samples within 15 minutes given my decision pipeline at most times I run this with simulator
