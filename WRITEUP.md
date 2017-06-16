@@ -124,13 +124,13 @@ blocked_thresh_max = (255, 100, 255)
 - If we're not near a sample and our velocity is zero even though we are throttling, then this means we are `stuck`
 - If we're not near a sample and there is no sufficient movement even though a significant time has passed, then we can safely say we are stuck.
 
-### 3A. If we are in `forward` mode, command appropriately
+### 3A. If we're in `forward` mode, command appropriately
 - Check if the path is sufficiently clear given the `Rover.ground_pixels_count` and a threshold `Rover.is_blocked_thresh`
 - If the path is clear, we should move forward given the suggested steering angle. We should accelerate if we haven't reached our allowed velocity.
 - If the path is clear and we have found the rock, we should move slowly by keeping our acceleration to a minimum.
 - If the path is blocked let's brake and and switch to `stop mode`
 
-### 3B. If we are in `stop` mode, command appropriately
+### 3B. If we're in `stop` mode, command appropriately
 - If we're not yet completely stopped, keep braking.
 - If we've completely stopped, check if path is sufficiently clear, given
 the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
@@ -138,8 +138,8 @@ the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
 
 ### 3C. If we're `stuck`, let's turn in place
 
-### 4. Pick up the sample if we could and haven't yet
-- If we're not moving and we're near a sample and let's pick it up
+### 4. Pick-up the sample if we could and haven't yet
+- If we're not moving and we're near a sample, then let's pick it up
 
 # Known Issues and Recommendations For Improvement
 - There are some cases that the rover gets stuck but isn't detected by our pipeline, investigate these cases and check how to detect them
@@ -149,3 +149,4 @@ the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
 - Sometimes the rover loops around a large area several times before going to a new path, try to avoid getting into this scenario my considering its previous traversed positions and avoid heading back there.
 - Try to improve the mapping by not considering camera images taken when the rover has sufficient pitch and roll which means the camera images isn't taken directly parallel to the ground which breaks our assumptions and affects the fidelity when compared with the ground truth.
 - The rover cannot go back to it's starting location when it has collected all rock samples, this feature is not implemented!
+- There are many places in the code that can be refactored to be better written and more readable
