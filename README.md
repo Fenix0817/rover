@@ -48,7 +48,7 @@ $ ffmpeg -i output.mov -vcodec copy -acodec copy output.mp4
 - - drive around collecting data
 - - Hit "r" again to stop data collection.
 
-### How to use
+### How To Use
 - In the root directory you will see `dataset.zip`, extract this to create
 the `dataset` folder with contains the recorded data.
 - Go inside the `code` folder located at the root directory in your terminal
