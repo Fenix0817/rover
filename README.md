@@ -11,9 +11,9 @@
 # [WRITEUP](https://github.com/mithi/rover/blob/master/WRITEUP.md)
 
 # Videos
-- https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
-- https://github.com/mithi/rover/blob/master/output/videoA.mp4
-- https://github.com/mithi/rover/blob/master/output/videoB.mp4
+- [Notebook Analysis Output Video](https://github.com/mithi/rover/blob/master/output/test_mapping.mp4)
+- [Screen Recording (with latency, so rover wobbles)](https://youtu.be/abqHyHql_EY)
+- [Recorded via iPhone (no lag)](https://youtu.be/GiGVlfZQzI0)
 - The videos were recorded in real-time and was sped up with `ffmpeg`
 ```
 $ brew install ffmpeg
