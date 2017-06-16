@@ -1,5 +1,6 @@
 # Outline
 - Summary
+- Videos
 - Data Analysis
 - - Obstacle, Navigable Terrain, and Rock Sample Identification
 - - World Map Creation
@@ -7,6 +8,8 @@
 - - Perception
 - - Decision-making
 - Known Issues and Recommendations For Improvement
+
+![image](output/result.png)
 
 # Summary
 - I have used image processing and computer vision techniques to do the following:
@@ -19,6 +22,11 @@
 > I chose an 840 x 520 resolution with the graphic quality of 'good' for autonomous navigation
 
 ![settings](output/settings.png)
+
+# Videos
+- - https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
+- - https://github.com/mithi/rover/blob/master/output/videoA.mp4
+- - https://github.com/mithi/rover/blob/master/output/videoB.mp4
 
 
 # Data Analysis
@@ -141,11 +149,3 @@ the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
 - Sometimes the rover loops around a large area several times before going to a new path, try to avoid getting into this scenario my considering its previous traversed positions and avoid heading back there.
 - Try to improve the mapping by not considering camera images taken when the rover has sufficient pitch and roll which means the camera images isn't taken directly parallel to the ground which breaks our assumptions and affects the fidelity when compared with the ground truth.
 - The rover cannot go back to it's starting location when it has collected all rock samples, this feature is not implemented!
-
-# Summary
-- I have used image processing and computer vision techniques to do the following:
-- - Identify rock samples, obstacles and navigable terrain.
-- - Map more than 40% of the environment with at least 60% fidelity to the ground truth
-- I have used the results of the computer vision techniques make inferences about the environment.
-- - These inferences help me decide what actions the rover should to navigate the environment autonomously and pick up desired samples.
-- - The rover has typically picked up 4 - 6 samples within 15 minutes given my decision pipeline at most times I run this with simulator
