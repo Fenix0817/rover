@@ -33,7 +33,7 @@ ground_truth = mpimg.imread('../calibration_images/map_bw.png')
 # This next line creates arrays of zeros in the red and blue channels
 # and puts the map into the green channel.  This is why the underlying
 # map output looks green in the display image
-ground_truth_3d = np.dstack((ground_truth*0, ground_truth*255, ground_truth*0)).astype(np.float)
+ground_truth_3d = np.dstack((ground_truth*255, ground_truth*255, ground_truth*255)).astype(np.float)
 
 # Define RoverState() class to retain rover state parameters
 class RoverState():
@@ -43,6 +43,8 @@ class RoverState():
         self.ground_pixels_count = 0
         self.found_rock = False
         self.rock_map = ground_truth_3d[:, :, 0] * 0
+        self.recorded_pos = (0, 0, 0, 0)
+        self.sufficient_movement = False
 
         self.start_time = None # To record the start time of navigation
         self.total_time = None # To record total duration of naviagation
@@ -59,14 +61,14 @@ class RoverState():
         self.nav_dists = None # Distances of navigable terrain pixels
         self.ground_truth = ground_truth_3d # Ground truth worldmap
         self.mode = 'forward' # Current mode (can be forward or stop)
-        self.throttle_val = 0.2 # Throttle setting when accelerating
+        self.throttle_val = 0.3 # Throttle setting when accelerating
         self.brake_val = 10 # Brake setting when braking
         # The stop_forward and go_forward fields below represent total count
         # of navigable terrain pixels.  This is a very crude form of knowing
         # when you can keep going and when you should stop.  Feel free to
         # get creative in adding new fields or modifying these!
-        self.is_blocked_thresh = 50 # Threshold to initiate stopping
-        self.is_cleared_path_thresh = 500 # Threshold to go forward again
+        self.is_blocked_thresh = 50 + 50 # Threshold to initiate stopping
+        self.is_cleared_path_thresh = 500 + 50 # Threshold to go forward again
         self.max_vel = 1 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
