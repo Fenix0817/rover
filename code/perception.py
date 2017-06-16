@@ -47,13 +47,12 @@ def filter_hls(img, thresh_min, thresh_max, height = None):
 Converts from image coordinates to rover coodinates from a binary image
 returns a list of x and a list of y values
 '''
-def get_rover_coordinates(binary_img):
-
-  ys, xs = binary_img.nonzero()
+def get_rover_coordinates(xs, ys, h, w):
 
   # Calculate positions with reference to the rover position being at the center bottom of the image
-  xs_rover = -(ys - binary_img.shape[0])
-  ys_rover = -(xs - binary_img.shape[1] / 2 )
+
+  xs_rover = -(ys - h)
+  ys_rover = -(xs - w / 2 )
 
   return xs_rover, ys_rover
 
@@ -94,6 +93,66 @@ def convert_rover_to_world_coordinates(xs, ys, x_pos, y_pos, yaw, world_size, sc
 
   return xs_world, ys_world
 
+def get_warp_points():
+
+  destination_points = np.float32([[155, 155], [165, 155], [165, 145], [155, 145]])
+  source_points = np.float32([[14, 140], [301 ,140],[200, 96], [118, 96]])
+
+  return source_points, destination_points
+
+
+class PerceivedObjectOfInterest:
+  # cam: direct from the camera image
+  # warped :transformed perspective from the camera image
+  # rover: in rover coordinate system transformed from warped perspective
+  # world: in world coordinate system transformed from rover's coordinate system
+  # bin: binary image
+
+  def __init__(self, img):
+
+    self.img = img
+    self.cam_bin = None
+    self.warped_bin = None
+    self.cam_xs, self.cam_ys = None, None
+    self.warped_xs, self.warped_ys = None, None
+    self.rover_xs, self.rover_ys = None, None
+    self.world_xs, self.world_ys = None, None
+    self.size = None
+    self.ds, self.angles = None, None
+    self.d, self.angle = None, None
+    self.mean_x, self.mean_y = None, None
+
+  def do_thresholding(self, thresh_min, thresh_max, height = None):
+    # Threshold in the HLS channel
+    self.cam_bin = filter_hls(self.img, thresh_min, thresh_max, height)
+    # Store non zero pixels
+    self.cam_ys, self.cam_xs = self.cam_bin.nonzero()
+
+  def warp(self, source_points, destination_points):
+
+    # Transform_perspective
+    self.warped_bin = transform_perspective(self.cam_bin, source_points, destination_points)
+    self.warped_ys, self.warped_xs = self.warped_bin.nonzero()
+
+    # Get rover coordinates
+    self.rover_xs, self.rover_ys = get_rover_coordinates(
+      self.warped_xs, self.warped_ys, self.warped_bin.shape[0], self.warped_bin.shape[1])
+
+    # get mean x, and y in the rover coordinates
+    # Get other properties based on the image
+    self.size = len(self.rover_xs)
+    self.ds, self.angles = convert_to_polar(self.rover_xs, self.rover_ys)
+    self.d, self.angle = np.mean(self.ds), np.mean(self.angles)
+    self.mean_x, self.mean_y = np.mean(self.warped_xs), np.mean(self.warped_ys)
+
+    if np.isnan(self.d) or np.isnan(self.angle):
+      self.d, self.angle = 0, 0
+      self.mean_x, self.mean_y = 0, 0
+
+  def compute_world_coordinates(self, pos_x, pos_y, yaw, world_size, scale):
+    self.world_xs, self.world_ys = convert_rover_to_world_coordinates(
+      self.rover_xs, self.rover_ys, pos_x, pos_y, yaw, world_size, scale)
+
 
 '''
 Analyze incoming image data
@@ -101,159 +160,63 @@ Analyze incoming image data
 def perception_step(Rover):
 
   # Get Rover's current position and heading, and camera image
-  pos_x, pos_y = Rover.pos
-  yaw = Rover.yaw
-  img = Rover.img
-
-  DISPLAY_MODE = 1
-  # DISPLAY_MODE
-  # 1 - Display Transformed Camera View
-  # 2 - Display Camera View
-  # 3 - Display Rover coordinates View
+  pos_x, pos_y, yaw, img = Rover.pos[0], Rover.pos[1], Rover.yaw, Rover.img
 
   # Set up world_size and scale which is the rover pixels / world pixels ratio
-  world_size = 200
-  scale = 30
+  world_size, scale = 200, 30
 
   # Calculate source and destination points for perspective transform later
-  dest_size, bottom_offset = 5, 6
-
-  h, w = img.shape[0], img.shape[1]
-  p1, p2 = w / 2 - dest_size, w / 2 + dest_size
-  p3, p4 = h - bottom_offset, h - 2 * dest_size - bottom_offset
-
-  destination_points = np.float32([[p1, p3], [p2, p3], [p2, p4], [p1, p4],])
-  source_points = np.float32([[14, 140], [301 ,140],[200, 96], [118, 96]])
-
-  # Declare calibrated minimum and maximum threshold value for each HSL channel
-  # to single out navigable terrain (ground), rock samples, and obstacles (block)
-  ground_thresh_min = (0, 100, 70)
-  ground_thresh_max = (255, 255, 255)
-
-  rock_thresh_min = (0, 100, 0)
-  rock_thresh_max = (255, 255, 70)
-
-  blocked_thresh_min = (0, 0, 0)
-  blocked_thresh_max = (255, 100, 255)
+  source_points, destination_points = get_warp_points()
 
   #############################################################################
-  # Compute for lists of the locations of
+  # Given the incoming image, compute perceived properties for the following:
   # navigable (ground), samples (rock), obstacles (blocked) pixels
   #############################################################################
+  Ground = PerceivedObjectOfInterest(img)
+  Ground.do_thresholding(thresh_min = (0, 100, 70), thresh_max = (255, 255, 255), height = 70)
+  Ground.warp(source_points, destination_points)
+  Ground.compute_world_coordinates(pos_x, pos_y, yaw, world_size, scale)
 
-  # cam: direct from the camera image
-  # warped :transformed perspective from the camera image
-  # rover: in rover coordinate system transformed from warped perspective
-  # world: in world coordinate system transformed from rover's coordinate system
-  # bin: binary image
+  Rock = PerceivedObjectOfInterest(img)
+  Rock.do_thresholding(thresh_min = (0, 100, 0), thresh_max = (255, 255, 70))
+  Rock.warp(source_points, destination_points)
+  Rock.compute_world_coordinates(pos_x, pos_y, yaw, world_size, scale)
 
-  # Get respective thresholded binary images
-  cam_ground_bin = filter_hls(img, ground_thresh_min, ground_thresh_max, height = 70)
-  cam_rock_bin = filter_hls(img, rock_thresh_min, rock_thresh_max)
-  cam_blocked_bin = filter_hls(img, blocked_thresh_min, blocked_thresh_max)
-
-  # Get x, y coordinates of pixels we're referring to (cam_view), so we can display it as rover's vision
-  cam_ground_ys, cam_ground_xs = cam_ground_bin.nonzero()
-  cam_rock_ys, cam_rock_xs = cam_rock_bin.nonzero()
-  cam_blocked_ys, cam_blocked_xs = cam_blocked_bin.nonzero()
-
-  # Transform perspective of respective binary images
-  warped_ground_bin = transform_perspective(cam_ground_bin, source_points, destination_points)
-  warped_rock_bin = transform_perspective(cam_rock_bin, source_points, destination_points)
-  warped_blocked_bin = transform_perspective(cam_blocked_bin, source_points, destination_points)
-
-  # Get x, y coordinates of pixels we're referring to (sky_view), so we can display it as rover's vision
-  warped_ground_ys,  warped_ground_xs = warped_ground_bin.nonzero()
-  warped_rock_ys,  warped_rock_xs = warped_rock_bin.nonzero()
-  warped_blocked_ys,  warped_blocked_xs = warped_blocked_bin.nonzero()
-
-  # Get respective thresholded pixels in rover coordinates
-  rover_ground_xs, rover_ground_ys = get_rover_coordinates(warped_ground_bin)
-  rover_rock_xs, rover_rock_ys = get_rover_coordinates(warped_rock_bin)
-  rover_blocked_xs, rover_blocked_ys = get_rover_coordinates(warped_blocked_bin)
-
-  # Get respective pixels in world coordinates
-  world_ground_xs, world_ground_ys = convert_rover_to_world_coordinates(
-      rover_ground_xs, rover_ground_ys, pos_x, pos_y, yaw, world_size, scale)
-
-  world_rock_xs, world_rock_ys = convert_rover_to_world_coordinates(
-      rover_rock_xs, rover_rock_ys, pos_y, pos_y, yaw, world_size, scale)
-
-  world_blocked_xs, world_blocked_ys = convert_rover_to_world_coordinates(
-      rover_blocked_xs, rover_blocked_ys, pos_x, pos_y, yaw, world_size, scale)
+  Blocked = PerceivedObjectOfInterest(img)
+  Blocked.do_thresholding(thresh_min = (0, 0, 0), thresh_max = (255, 100, 255))
+  Blocked.warp(source_points, destination_points)
+  Blocked.compute_world_coordinates(pos_x, pos_y, yaw, world_size, scale)
 
   #############################################################################
   #  Update worldmap
   #############################################################################
-
-  # Add to map
-  Rover.worldmap[world_ground_ys, world_ground_xs, 2] = 255
-  Rover.worldmap[world_rock_ys, world_rock_xs, 1] = 255
-  Rover.worldmap[world_blocked_ys, world_blocked_xs, 0] = 255
+  Rover.worldmap[Ground.world_ys, Ground.world_xs, 2] = 255
+  Rover.worldmap[Rock.world_ys, Rock.world_xs, 1] = 255
+  Rover.worldmap[Blocked.world_ys, Blocked.world_xs, 0] = 255
 
   #############################################################################
-  # Update stored distances and angles of each navigable terrain pixel
-  # Also used for displaying rover coordinates
+  # Update Rover angles and distances of interest
   #############################################################################
+  angle, angles, ds = Ground.angle, Ground.angles, Ground.ds
+  Rover.found_rock = False
+  Rover.ground_pixels_count = Ground.size
 
-  temp_ds, temp_angles = convert_to_polar(rover_ground_xs, rover_ground_ys)
-  temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
-
-  Rover.ground_pixels_count = len(temp_angles)
-
-  if np.isnan(temp_angle) or np.isnan(temp_d):
-    temp_d, temp_angle = 0, 0
-
-  if len(rover_rock_xs) > 3: # Found rock
+  if Rock.size > 2: # Found rock
     print("Sees rock")
     # Override angle
     Rover.found_rock = True
-    temp_ds, temp_angles = convert_to_polar(rover_rock_xs, rover_rock_ys)
-    temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
-  else:
-    Rover.found_rock = False
+    angle, angles, ds = Rock.angle, Rock.angles, Rock.ds
 
-  Rover.nav_dists, Rover.nav_angles = temp_ds, temp_angles
-  Rover.angle = temp_angle * 180 / np.pi
-
+  Rover.nav_dists, Rover.nav_angles = ds, angles
+  Rover.angle = angle * 180 / np.pi
 
   #############################################################################
-  # These are for displaying the rover coordinates
+  # Get the mean location to display our direction
   #############################################################################
-
-  if DISPLAY_MODE == 3:
-
-    temp_xs = np.clip((rover_ground_xs / 2).astype(int), 0, 319)
-    temp_ys = np.clip(((rover_ground_ys + 160) / 2).astype(int), 0, 159)
-
-    temp_rock_xs = np.clip((rover_rock_xs / 2).astype(int), 0, 319)
-    temp_rock_ys = np.clip(((rover_rock_ys + 160) / 2).astype(int), 0, 159)
-
-    if Rover.found_rock:
-      temp_ds, temp_angles = convert_to_polar(temp_rock_xs, temp_rock_ys)
-      temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
-    else:
-      temp_ds, temp_angles = convert_to_polar(temp_xs, temp_ys)
-      temp_angle, temp_d = np.mean(temp_angles), np.mean(temp_ds)
-
-    if np.isnan(temp_angle) or np.isnan(temp_d):
-      mean_x, mean_y = 0, 0
-    else:
-      mean_x, mean_y = int(temp_d * np.cos(temp_angle)), int(temp_d * np.sin(temp_angle))
-
-  #############################################################################
-  # Get the mean location of navigable terrain
-  #############################################################################
+  mean_x, mean_y = int(Ground.mean_x), int(Ground.mean_y)
 
   if Rover.found_rock:
-    warped_mean_x, warped_mean_y = np.mean(warped_rock_xs), np.mean(warped_rock_ys)
-  else:
-    warped_mean_x, warped_mean_y = np.mean(warped_ground_xs), np.mean(warped_ground_ys)
-
-  if np.isnan(warped_mean_x) or np.isnan(warped_mean_y):
-    warped_mean_x, warped_mean_y = 0, 0
-  else:
-    warped_mean_x, warped_mean_y = int(warped_mean_x), int(warped_mean_y)
+    mean_x, mean_y = int(Rock.mean_x), int(Rock.mean_y)
 
   #############################################################################
   # Update vision_image
@@ -263,22 +226,9 @@ def perception_step(Rover):
   Rover.vision_image = Rover.vision_image * 0;
 
   # Navigable terrain is blue, rock is green, obstacles is red
-
-  if DISPLAY_MODE == 1:
-    # Display Transformed Camera View
-    Rover.vision_image[warped_ground_ys, warped_ground_xs, 0] = 255
-    Rover.vision_image[warped_rock_ys, warped_rock_xs, 1] = 255
-    Rover.vision_image[warped_blocked_ys, warped_blocked_xs, 2] = 255
-    cv2.line(Rover.vision_image, (160, 160),(warped_mean_x, warped_mean_y), [0, 255, 0], 2)
-  elif DISPLAY_MODE == 2:
-    # Display Camera View
-    Rover.vision_image[cam_ground_ys, cam_ground_xs, 0] = 255
-    Rover.vision_image[cam_rock_ys, cam_rock_xs, 1] = 255
-    Rover.vision_image[cam_blocked_ys, cam_blocked_xs, 2] = 255
-  elif DISPLAY_MODE == 3:
-    # Display Rover coordinates View
-    Rover.vision_image[temp_ys, temp_xs, 0] = 255
-    Rover.vision_image[temp_rock_ys, temp_rock_xs, 1] = 255
-    cv2.line(Rover.vision_image, (0, 80),(mean_x, mean_y), [0, 255, 0], 2)
+  Rover.vision_image[Ground.warped_ys, Ground.warped_xs, 0] = 255
+  Rover.vision_image[Rock.warped_ys, Rock.warped_xs, 1] = 255
+  Rover.vision_image[Blocked.warped_ys, Blocked.warped_xs, 2] = 255
+  cv2.line(Rover.vision_image, (160, 160),(mean_x, mean_y), [0, 255, 0], 3)
 
   return Rover
