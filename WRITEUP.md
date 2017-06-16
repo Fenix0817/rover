@@ -5,7 +5,7 @@
 - - World Map Creation
 - Autonomous Navigation and Mapping
 - - Perception
-- - Decision making
+- - Decision-making
 - Known Issues and Recommendations For Improvement
 
 # Summary
@@ -103,7 +103,7 @@ blocked_thresh_max = (255, 100, 255)
 ![image](output/thresh_to_map.png)
 
 
-## Decision making
+## Decision-making
 - https://github.com/mithi/rover/blob/master/code/decision.py
 - Given the updated results of `perception_step()` function the `decision_step()` function is roughly like this:
 
@@ -144,8 +144,8 @@ the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
 
 # Summary
 - I have used image processing and computer vision techniques to do the following:
-- - identify rock samples, obstacles and navigable terrain.
-- - map more than 40% of the environment with at least 60% fidelity to the ground truth
+- - Identify rock samples, obstacles and navigable terrain.
+- - Map more than 40% of the environment with at least 60% fidelity to the ground truth
 - I have used the results of the computer vision techniques make inferences about the environment.
 - - These inferences help me decide what actions the rover should to navigate the environment autonomously and pick up desired samples.
 - - The rover has typically picked up 4 - 6 samples within 15 minutes given my decision pipeline at most times I run this with simulator
