@@ -29,7 +29,7 @@ def stop_mode(Rover, steer_val):
     print("Completely stopped.")
 
     if Rover.ground_pixels_count < Rover.is_cleared_path_thresh:
-      print("Path isn't sufficiently clear so keep turning.")
+      print("Path isn't sufficiently clear; keep turning.")
       steer = -15
       #steer = steer_val
       Rover.throttle, Rover.brake, Rover.steer = 0, 0, steer
@@ -85,6 +85,7 @@ def decision_step(Rover):
     Rover.mode = 'stuck'
 
   if Rover.near_sample == 1:
+    print("Near sample!")
     Rover.mode = 'stop'
 
   # Do next course of action
@@ -93,6 +94,7 @@ def decision_step(Rover):
   elif Rover.mode == 'stop':
     Rover = stop_mode(Rover, steer_val)
   elif Rover.mode == 'stuck':
+    print("Currently Stuck: Turn in place")
     steer = -15
     #steer = steer_val
     Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, 0, steer, 'forward'
