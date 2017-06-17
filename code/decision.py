@@ -41,7 +41,7 @@ def stop_mode(Rover, steer_val):
 
 
 def update_recorded_movement(Rover):
-  # Check if we've sufficiently moved, if we did, updated latest recorded position
+  # Check if we've sufficiently moved, if we did, update latest recorded position
 
   if Rover.pos[0] and Rover.pos[1] and Rover.yaw:
     cond1 = np.absolute(Rover.recorded_pos[0] - Rover.pos[0]) > 2
