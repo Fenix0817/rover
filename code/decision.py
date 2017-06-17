@@ -62,10 +62,11 @@ def check_if_stuck(Rover):
   stuck_cond1 =  Rover.vel == 0 and np.absolute(Rover.throttle) > 0
   stuck_cond2 = Rover.total_time - Rover.recorded_pos[3] > 2 and not Rover.sufficient_movement
   is_stuck = (stuck_cond1 or stuck_cond2) and not Rover.near_sample
+  
   return is_stuck
 
 
-# This is where you can build a decision tree for determining throttle, brake and steer
+# A decision tree for determining throttle, brake and steer
 # commands based on the output of the perception_step() function
 def decision_step(Rover):
 
@@ -75,7 +76,7 @@ def decision_step(Rover):
 
   steer_val = np.clip(Rover.angle, -15, 15)
 
-  # If we've sufficiently moved, if we did, updated latest recorded position
+  # If we've sufficiently moved, if we did, update latest recorded position
   Rover = update_recorded_movement(Rover)
 
   # Check if we're stuck or near a sample
@@ -96,10 +97,11 @@ def decision_step(Rover):
     #steer = steer_val
     Rover.brake, Rover.throttle, Rover.steer, Rover.mode = 0, 0, steer, 'forward'
 
-  # Let's pick up a rock if we've stopped moving near a sample
+  #If we've not moving and we're near a sample, pick the sample up
   if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
-    Rover.send_pickup = True
     print("Picking up sample")
+    Rover.send_pickup = True
+    
 
   print("MODE:", Rover.mode)
 
