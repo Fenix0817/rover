@@ -2,7 +2,6 @@ import numpy as np
 
 def forward_mode(Rover, steer_val):
 
-
   if Rover.ground_pixels_count >= Rover.is_blocked_thresh:
     print("Sufficient clear path ahead.")
 
