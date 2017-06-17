@@ -2,9 +2,9 @@
 # Introduction
 - This is my turn-in code for the first project for the fulfillment of Udacity's Robotics Nanodegree.
 - This project is modeled after
-[the NASA sample and return challenge](https://www.nasa.gov/directorates/spacetech/centennial_challenges/sample_return_robot/index.html).
+the [NASA Sample and Return Challenge](https://www.nasa.gov/directorates/spacetech/centennial_challenges/sample_return_robot/index.html).
 - Fulfillment of this project gives first hand experience on the three essential elements of robotics, which are perception, decision making and actuation. The project is carried out in a simulator environment built with the Unity game engine.
-- For more information about this project, please see
+- For more information about this project, check
 [the starter code as provided by Udacity](https://github.com/udacity/RoboND-Rover-Project)
 
 
@@ -38,7 +38,7 @@ $ ffmpeg -i output.mov -vcodec copy -acodec copy output.mp4
 # Data Analysis
 
 ### Recording Data
-- The `rover.playground.ipynb` notebook analyzes my recorded data from the simulator as well as images that can be found at `calibration_images` folder.
+- The `rover_playground.ipynb` notebook in the 'code' folder analyzes my recorded data from the simulator as well as images that can be found at `calibration_images` folder.
 - I have recorded the data using the following steps:
 - - launch the simulator
 - - choose "Training Mode"
@@ -58,7 +58,7 @@ $ source activate RoboND
 $ Jupyter notebook &
 ```
 - Select `rover_playground.ipynb` with the launched browser
-- All cells should run as is, and are sufficiently commented so that you can easily modify as you wish.
+- All cells should run as is, and are sufficiently commented so that you can easily modify as you wish
 - Running all the cells in this folder outputs a video that is stored at the `output` folder named `test_mapping.mp4`
 
 
@@ -74,5 +74,5 @@ $ python driver_rover.py
 ```
 - Launch the simulator
 - I chose an 840 x 520 resolution with the graphic quality of 'good'
-- Choose Autonomous Mode
+- Choose _'Autonomous Mode'_
 - The rover should drive itself
