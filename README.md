@@ -38,7 +38,7 @@ $ ffmpeg -i output.mov -vcodec copy -acodec copy output.mp4
 # Data Analysis
 
 ### Recording Data
-- The `rover_playground.ipynb` notebook in the 'code' folder analyzes my recorded data from the simulator as well as images that can be found at `calibration_images` folder.
+- The `rover_playground.ipynb` notebook in the `code` folder analyzes my recorded data from the simulator as well as images that can be found at `calibration_images` folder.
 - I have recorded the data using the following steps:
 - - launch the simulator
 - - choose "Training Mode"
