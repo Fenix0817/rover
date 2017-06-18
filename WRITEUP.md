@@ -15,9 +15,9 @@
 - I have used image processing and computer vision techniques to do the following:
 - - Identify rock samples, obstacles and navigable terrain.
 - - Map more than 40% of the environment with atleast 60% fidelity to the ground truth
-- I have used the results of the computer vision techniques make inferences about the environment.
-- - These inferences help me decide what actions the rover should to navigate the environment autonomously and pick up desired samples.
-- - The rover has picked up 4 - 6 samples given my decision pipeline at most times I run this at the simulator
+- I have used the results of the computer vision techniques make inferences about the environment;
+- I have used the inferences to make a decition pipeline which proposes what actions to take in order to navigate the environment autonomously and pick up desired samples.
+- - The rover has picked up 4 - 6 samples in signifcantly less than 20 minutes given my decision pipeline at most times I run this at the simulator
 
 > I chose an 840 x 520 resolution with the graphic quality of 'good' for autonomous navigation
 
@@ -30,10 +30,8 @@
 
 
 # Data Analysis
-- The notebook can be found in the following link:
-- - https://github.com/mithi/rover/blob/master/code/rover_playround.ipynb
-- The output video of this notebook can be found here:
-- - https://github.com/mithi/rover/blob/master/output/test_mapping.mp4
+- [The notebook](https://github.com/mithi/rover/blob/master/code/rover_playround.ipynb)
+- [output video of this notebook](https://github.com/mithi/rover/blob/master/output/test_mapping.mp4)
 
 ## Obstacle, Navigable Terrain, and Rock Sample Identification
 - Given a camera image from the rover, obstacles (`blocked`), samples (`rock`), and navigable terrain (`ground`) are identified via their color.
@@ -64,7 +62,7 @@ blocked_thresh_max = (255, 100, 255)
 
 ## World Map Creation
 
-- Algorithmically, to do this I did the following steps for world map creation:
+- Algorithmically, I did the following steps for world map creation:
 - Initally: I started a a map which is a blank image.
 - Repeatedly: Each time there is an incoming image:
 - - 1. Use the color thresholding function `filter_hls()` to identify the `rock`, `ground`, and `blocked` pixels
@@ -78,7 +76,7 @@ blocked_thresh_max = (255, 100, 255)
 # Autonomous Navigation and Mapping
 
 ## Perception
-- https://github.com/mithi/rover/blob/master/code/perception.py
+- [perception.py](https://github.com/mithi/rover/blob/master/code/perception.py)
 - Given a camera image from the rover my `perception_step()` function is roughly like this:
 
 ### 1.Identify pixel locations of each _object of interest_ in the Camera
@@ -112,7 +110,7 @@ blocked_thresh_max = (255, 100, 255)
 
 
 ## Decision-making
-- https://github.com/mithi/rover/blob/master/code/decision.py
+- [decision.py](https://github.com/mithi/rover/blob/master/code/decision.py)
 - Given the updated results of `perception_step()` function the `decision_step()` function is roughly like this:
 
 ### 1. Update last recorded position
@@ -144,9 +142,9 @@ the `Rover.ground_pixels_count` and a threshold `Rover.is_clear_path_thresh`
 # Known Issues and Recommendations For Improvement
 - There are some cases that the rover gets stuck but isn't detected by our pipeline, investigate these cases and check how to detect them
 - There are some cases that the rover gets stuck but can't get `unstuck` using a simple turning method, try to make a new mode called `reverse` where it will move backward for a sufficient time before turning.
-- The rover wanders around without considering if it has already traversed that path before, develop a smarter method by considering its previous traversed positions and avoid heading back there.
+- The rover wanders around without considering if it has already traversed that path before. We can develop a smarter method by considering its previous traversed positions and avoid heading back there.
 - The Rover moves slowly and conservatively. Try to make it move faster without running into problems
 - Sometimes the rover loops around a large area several times before going to a new path, try to avoid getting into this scenario my considering its previous traversed positions and avoid heading back there.
-- Try to improve the mapping by not considering camera images taken when the rover has sufficient pitch and roll which means the camera images isn't taken directly parallel to the ground which breaks our assumptions and affects the fidelity when compared with the ground truth.
-- The rover cannot go back to it's starting location when it has collected all rock samples, this feature is not implemented!
+- Try to improve the mapping by not considering camera images taken when the rover has sufficient pitch and roll. Having certain pitch and roll means the camera images isn't taken directly parallel to the ground. This breaks our assumptions and affects the fidelity when compared with the ground truth.
+- The rover cannot go back to it's starting location when it has collected all rock sample. This feature is not implemented!
 - There are many places in the code that can be refactored to be better written and more readable
