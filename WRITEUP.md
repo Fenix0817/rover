@@ -31,7 +31,7 @@
 
 # Data Analysis
 - [The notebook](https://github.com/mithi/rover/blob/master/code/rover_playround.ipynb)
-- [output video of this notebook](https://github.com/mithi/rover/blob/master/output/test_mapping.mp4)
+- [Output video of this notebook](https://github.com/mithi/rover/blob/master/output/test_mapping.mp4)
 
 ## Obstacle, Navigable Terrain, and Rock Sample Identification
 - Given a camera image from the rover, obstacles (`blocked`), samples (`rock`), and navigable terrain (`ground`) are identified via their color.
