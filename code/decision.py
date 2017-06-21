@@ -104,7 +104,5 @@ def decision_step(Rover):
     print("Picking up sample")
     Rover.send_pickup = True
     
-
   print("MODE:", Rover.mode)
-
   return Rover
