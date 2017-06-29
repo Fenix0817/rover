@@ -48,12 +48,11 @@ Converts from image coordinates to rover coodinates from a binary image
 returns a list of x and a list of y values
 '''
 def get_rover_coordinates(xs, ys, h, w):
-
+  
   # Calculate positions with reference to the rover position being at the center bottom of the image
-
   xs_rover = -(ys - h)
   ys_rover = -(xs - w / 2 )
-
+  
   return xs_rover, ys_rover
 
 
@@ -62,8 +61,10 @@ Converts to polar coordinates from rover space
 Convert all a list of x's and a list of y's to a list of distances and a list of angles
 '''
 def convert_to_polar(xs, ys):
+  
   distances = np.sqrt(xs**2 + ys**2)
   angles = np.arctan2(ys, xs)
+  
   return distances, angles
 
 
@@ -93,6 +94,10 @@ def convert_rover_to_world_coordinates(xs, ys, x_pos, y_pos, yaw, world_size, sc
 
   return xs_world, ys_world
 
+
+'''
+get precomputed destination and source points
+'''
 def get_warp_points():
 
   destination_points = np.float32([[155, 155], [165, 155], [165, 145], [155, 145]])
@@ -138,7 +143,7 @@ class PerceivedObjectOfInterest:
     self.rover_xs, self.rover_ys = get_rover_coordinates(
       self.warped_xs, self.warped_ys, self.warped_bin.shape[0], self.warped_bin.shape[1])
 
-    # get mean x, and y in the rover coordinates
+    # Get the mean x, and mean y of the rover coordinates pixels
     # Get other properties based on the image
     self.size = len(self.rover_xs)
     self.ds, self.angles = convert_to_polar(self.rover_xs, self.rover_ys)
