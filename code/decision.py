@@ -76,14 +76,15 @@ def decision_step(Rover):
 
   steer_val = np.clip(Rover.angle, -15, 15)
 
-  # If we've sufficiently moved, if we did, update latest recorded position
+  # Check if we've sufficiently moved, if we did, update latest recorded position
   Rover = update_recorded_movement(Rover)
 
-  # Check if we're stuck or near a sample
+  # Check if we're stuck
   if check_if_stuck(Rover):
     print("Stuck again!")
     Rover.mode = 'stuck'
-
+  
+  # Check if we're near a sample
   if Rover.near_sample == 1:
     print("Near sample!")
     Rover.mode = 'stop'
